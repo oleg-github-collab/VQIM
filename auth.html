@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeamPulse Analytics - Доступ</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: white;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .auth-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            margin: 20px;
+        }
+        h1 {
+            background: linear-gradient(45deg, #00d4ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 0.2em;
+            margin-bottom: 20px;
+        }
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #00d4ff, #a855f7);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+        .error {
+            color: #ff0080;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div style="font-size: 1.5rem; margin-bottom: 10px; opacity: 0.8;">🚀</div>
+        <h1>TeamPulse Analytics</h1>
+        <p style="margin-bottom: 30px; opacity: 0.7;">VQ & IM Team Insights</p>
+        
+        <input 
+            type="password" 
+            id="code" 
+            placeholder="Введіть код доступу"
+            maxlength="6"
+            autocomplete="off"
+        >
+        <button onclick="authenticate()">Увійти</button>
+        <div class="error" id="error" style="display: none;"></div>
+    </div>
+
+    <script>
+        const ACCESS_CODE = "226782"; // ЗМІНІТЬ НА ВАШ КОД
+        
+        // Перевіряємо чи уже авторизований
+        if (localStorage.getItem('vqim_auth') === 'true') {
+            window.location.href = 'dashboard.html';
+        }
+        
+        document.getElementById('code').focus();
+        
+        document.getElementById('code').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+        
+        document.getElementById('code').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                authenticate();
+            }
+        });
+        
+        function authenticate() {
+            const code = document.getElementById('code').value;
+            const errorDiv = document.getElementById('error');
+            
+            if (code === ACCESS_CODE) {
+                localStorage.setItem('vqim_auth', 'true');
+                window.location.href = 'dashboard.html';
+            } else {
+                errorDiv.textContent = 'Невірний код доступу';
+                errorDiv.style.display = 'block';
+                document.getElementById('code').value = '';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -15,6 +15,20 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Auth Check -->
+    <script>
+        // Перевірка авторизації
+        if (localStorage.getItem('vqim_auth') !== 'true') {
+            window.location.href = 'auth.html';
+        }
+        
+        // Функція виходу
+        function logout() {
+            localStorage.removeItem('vqim_auth');
+            window.location.href = 'auth.html';
+        }
+    </script>
+
     <!-- Mobile Warning -->
     <div id="mobileWarning" class="mobile-warning">
         <div class="warning-content">
@@ -185,6 +199,14 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Logout Button at bottom -->
+                <div class="nav-section logout-section">
+                    <button class="action-btn logout-btn" onclick="logout()" title="Вийти з системи">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Вихід</span>
+                    </button>
+                </div>
             </div>
         </aside>
 
@@ -329,5 +351,28 @@
 
     <!-- Load JavaScript -->
     <script src="app.js"></script>
+
+    <!-- Additional styles for logout button -->
+    <style>
+        .logout-section {
+            margin-top: auto;
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--glass-border);
+        }
+        
+        .logout-btn {
+            background: linear-gradient(45deg, #ff0080, #ff3366) !important;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 0, 128, 0.4);
+        }
+        
+        .logout-btn i {
+            margin-right: 8px;
+        }
+    </style>
 </body>
 </html>
