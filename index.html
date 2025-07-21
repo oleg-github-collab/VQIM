@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeamPulse Analytics | Deep Team Intelligence Platform</title>
+    
+    <!-- Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Mobile Warning -->
+    <div id="mobileWarning" class="mobile-warning">
+        <div class="warning-content">
+            <i class="fas fa-desktop"></i>
+            <h3 data-i18n="mobile.title">Для кращого досвіду</h3>
+            <p data-i18n="mobile.description">Рекомендуємо переглядати на комп'ютері для повного функціоналу візуалізації</p>
+            <button onclick="closeMobileWarning()" data-i18n="mobile.continue">Продовжити на мобільному</button>
+        </div>
+    </div>
+
+    <!-- Background Effects -->
+    <div class="neon-background">
+        <div class="neon-orb neon-orb-1"></div>
+        <div class="neon-orb neon-orb-2"></div>
+        <div class="neon-orb neon-orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="app-container" id="appContainer">
+        <!-- Fixed Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <!-- Logo & Language Switcher -->
+                <div class="logo-container">
+                    <div class="language-switcher">
+                        <button class="lang-btn active" data-lang="uk">UA</button>
+                        <button class="lang-btn" data-lang="en">EN</button>
+                    </div>
+                    <div class="logo-icon">TP</div>
+                    <h1>TeamPulse Analytics</h1>
+                    <p data-i18n="logo.subtitle">VQ & IM Team Insights</p>
+                </div>
+
+                <!-- Visualization Modes -->
+                <div class="nav-section">
+                    <h3><i class="fas fa-eye"></i> <span data-i18n="nav.visualizations">Візуалізації</span></h3>
+                    <nav class="nav-buttons">
+                        <button class="nav-btn active" data-view="3d">
+                            <i class="fas fa-cube"></i>
+                            <span data-i18n="nav.3d">3D Простір</span>
+                        </button>
+                        <button class="nav-btn" data-view="force">
+                            <i class="fas fa-project-diagram"></i>
+                            <span data-i18n="nav.force">Силовий граф</span>
+                        </button>
+                        <button class="nav-btn" data-view="circular">
+                            <i class="fas fa-circle-notch"></i>
+                            <span data-i18n="nav.circular">Кругова</span>
+                        </button>
+                        <button class="nav-btn" data-view="heatmap">
+                            <i class="fas fa-th"></i>
+                            <span data-i18n="nav.heatmap">Теплова карта</span>
+                        </button>
+                        <button class="nav-btn" data-view="development">
+                            <i class="fas fa-chart-scatter"></i>
+                            <span data-i18n="nav.development">Розвиток команди</span>
+                        </button>
+                        <button class="nav-btn" data-view="analysis">
+                            <i class="fas fa-brain"></i>
+                            <span data-i18n="nav.analysis">Глибокий аналіз</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Filters -->
+                <div class="nav-section">
+                    <h3><i class="fas fa-filter"></i> <span data-i18n="filters.title">Фільтри</span></h3>
+                    <div class="filter-group">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="filterPositive" checked>
+                            <span class="checkmark"></span>
+                            <span class="label-text" data-i18n="filters.positive">Позитивні зв'язки</span>
+                        </label>
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="filterNegative" checked>
+                            <span class="checkmark"></span>
+                            <span class="label-text" data-i18n="filters.negative">Негативні зв'язки</span>
+                        </label>
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="filterVQ" checked>
+                            <span class="checkmark"></span>
+                            <span class="label-text">Vagoteq</span>
+                        </label>
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="filterIM" checked>
+                            <span class="checkmark"></span>
+                            <span class="label-text">Intermastra</span>
+                        </label>
+                    </div>
+                    
+                    <!-- Force Graph Specific Filters -->
+                    <div class="force-filters" id="forceFilters" style="display: none;">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="filterIncoming" checked>
+                            <span class="checkmark"></span>
+                            <span class="label-text" data-i18n="filters.incoming">Вхідні оцінки</span>
+                        </label>
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="filterOutgoing" checked>
+                            <span class="checkmark"></span>
+                            <span class="label-text" data-i18n="filters.outgoing">Вихідні оцінки</span>
+                        </label>
+                    </div>
+                    
+                    <div class="person-filter">
+                        <label data-i18n="filters.focusPerson">Фокус на особі:</label>
+                        <select id="personFilter" class="glass-select">
+                            <option value="all" data-i18n="filters.allMembers">Всі учасники</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="nav-section">
+                    <h3><i class="fas fa-chart-line"></i> <span data-i18n="metrics.title">Ключові метрики</span></h3>
+                    <div class="metrics-summary">
+                        <div class="metric-card">
+                            <div class="metric-icon"><i class="fas fa-heart"></i></div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="teamHealthScore">78%</div>
+                                <div class="metric-label" data-i18n="metrics.teamHealth">Здоров'я команди</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="frictionIndex">21%</div>
+                                <div class="metric-label" data-i18n="metrics.friction">Індекс тертя</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon"><i class="fas fa-sitemap"></i></div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="clarityScore">35%</div>
+                                <div class="metric-label" data-i18n="metrics.clarity">Ясність ролей</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon"><i class="fas fa-users"></i></div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="engagementScore">72%</div>
+                                <div class="metric-label" data-i18n="metrics.engagement">Залученість</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="nav-section">
+                    <h3><i class="fas fa-tools"></i> <span data-i18n="actions.title">Дії</span></h3>
+                    <div class="action-buttons">
+                        <button class="action-btn" id="playPauseBtn">
+                            <i class="fas fa-pause"></i>
+                            <span data-i18n="actions.pauseAnimation">Пауза анімації</span>
+                        </button>
+                        <button class="action-btn" id="screenshotBtn">
+                            <i class="fas fa-camera"></i>
+                            <span data-i18n="actions.screenshot">Скріншот</span>
+                        </button>
+                        <button class="action-btn" id="fullscreenBtn">
+                            <i class="fas fa-expand"></i>
+                            <span data-i18n="actions.fullscreen">На весь екран</span>
+                        </button>
+                        <button class="action-btn" id="exportBtn">
+                            <i class="fas fa-download"></i>
+                            <span data-i18n="actions.export">Експорт даних</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <h2 id="pageTitle" data-i18n="titles.3d">3D Простір команди</h2>
+                <div class="header-controls">
+                    <div class="zoom-controls">
+                        <button class="control-btn" id="zoomIn" title="Zoom In">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button class="control-btn" id="zoomOut" title="Zoom Out">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button class="control-btn" id="resetView" title="Reset View">
+                            <i class="fas fa-sync"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Visualization Container -->
+            <div class="visualization-container" id="vizContainer">
+                <!-- 3D Container -->
+                <div id="threeContainer" class="viz-canvas"></div>
+                
+                <!-- SVG Container -->
+                <svg id="svgCanvas" class="viz-canvas"></svg>
+                
+                <!-- Canvas for heatmap -->
+                <canvas id="heatmapCanvas" class="viz-canvas"></canvas>
+                
+                <!-- Analysis Container -->
+                <div id="analysisContainer" class="analysis-content"></div>
+                
+                <!-- Development Chart Container -->
+                <div id="developmentContainer" class="development-content"></div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend" id="legend">
+                <h4 data-i18n="legend.title">Легенда</h4>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="legend-color positive"></span>
+                        <span data-i18n="legend.positive">Позитивний зв'язок</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color negative"></span>
+                        <span data-i18n="legend.negative">Негативний зв'язок</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color leader"></span>
+                        <span data-i18n="legend.leader">Лідер/Керівник</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Panel for 3D View -->
+            <div class="info-panel-3d" id="infoPanel3D">
+                <h4 data-i18n="info3d.structure">Командна структура</h4>
+                <div class="structure-levels">
+                    <div class="level-item">
+                        <span class="level-indicator c-level"></span>
+                        <span>C-Level</span>
+                    </div>
+                    <div class="level-item">
+                        <span class="level-indicator senior"></span>
+                        <span>Senior</span>
+                    </div>
+                    <div class="level-item">
+                        <span class="level-indicator middle"></span>
+                        <span>Middle</span>
+                    </div>
+                    <div class="level-item">
+                        <span class="level-indicator junior"></span>
+                        <span>Junior</span>
+                    </div>
+                </div>
+                <div class="selected-info" id="selectedInfo3D">
+                    <p data-i18n="info3d.clickInstruction">Клікніть на члена команди для детальної інформації</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Tooltip -->
+    <div id="tooltip" class="tooltip"></div>
+
+    <!-- Side Info Panel -->
+    <div id="sideInfo" class="side-info-panel">
+        <div class="side-info-content">
+            <button class="side-info-close" onclick="hideSideInfo()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="sideInfoBody"></div>
+        </div>
+    </div>
+
+    <!-- Quick Info Popup -->
+    <div id="quickInfo" class="quick-info">
+        <div class="quick-info-header">
+            <div class="quick-info-avatar"></div>
+            <div class="quick-info-title">
+                <h4 class="quick-info-name"></h4>
+                <p class="quick-info-role"></p>
+            </div>
+        </div>
+        <div class="quick-info-metrics">
+            <div class="metric">
+                <span class="metric-value positive-count">0</span>
+                <span class="metric-label" data-i18n="quick.positive">Позитивні</span>
+            </div>
+            <div class="metric">
+                <span class="metric-value negative-count">0</span>
+                <span class="metric-label" data-i18n="quick.negative">Негативні</span>
+            </div>
+            <div class="metric">
+                <span class="metric-value influence-score">0</span>
+                <span class="metric-label" data-i18n="quick.influence">Вплив</span>
+            </div>
+        </div>
+        <button class="quick-info-more" onclick="showDetailedModal()">
+            <i class="fas fa-expand"></i> <span data-i18n="quick.details">Детальніше</span>
+        </button>
+    </div>
+
+    <!-- Detailed Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content glass-card">
+            <button class="modal-close" id="modalClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <!-- Load JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
